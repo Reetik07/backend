@@ -14,20 +14,49 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Link as RouterLink } from 'react-router-dom';
 import axios from 'axios';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 
 // TODO remove, this demo shouldn't need to reset the theme.
 
 const defaultTheme = createTheme();
 
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
+
 export default function Login() {
+
+  const [openSnackbar, setOpenSnackbar] = React.useState(false)
+  const [snackbarMessage, setSnackbarMessage] = React.useState('This is a success message!')
+  const [snackbarSeverity, setSnackbarSeverity] = React.useState("success")
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpenSnackbar(false);
+  };
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     axios.post("/app/auth/login", {
       username: data.get('username'),
       password: data.get('password'),
-    }).then(() => {
-      window.location.href = '/app'
+    }).then((response) => {
+      if (response.data.statusCode === 401) {
+        setSnackbarSeverity("error");
+        setSnackbarMessage('Invalid username or password');
+        setOpenSnackbar(true);
+      }
+      else {
+        window.location.href = '/app'
+      }
+    }).catch((error) => {
+      setSnackbarSeverity("error");
+      setSnackbarMessage('An error occurred');
+      setOpenSnackbar(true);
     })
   };
 
@@ -89,6 +118,9 @@ export default function Login() {
             </Grid>
           </Box>
         </Box>
+        <Snackbar open={openSnackbar} autoHideDuration={2000} onClose={handleCloseSnackbar}>
+        <Alert severity={snackbarSeverity}>{snackbarMessage}</Alert>
+        </Snackbar>
       </Container>
     </ThemeProvider>
   );
