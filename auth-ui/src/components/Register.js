@@ -13,6 +13,7 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Link as RouterLink } from 'react-router-dom';
+import axios from 'axios';
 
 const defaultTheme = createTheme();
 
@@ -20,10 +21,15 @@ export default function Register() {
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
+    axios.post("/app/auth/register", {
+      firstName: data.get("firstName"),
+      lastName: data.get('lastName'),
+      username: data.get('username'),
+      email: data.get("email"),
       password: data.get('password'),
-    });
+    }).then(() => {
+      window.location.href = '/app'
+    })
   };
 
   return (
@@ -65,6 +71,16 @@ export default function Register() {
                   label="Last Name"
                   name="lastName"
                   autoComplete="family-name"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  id="username"
+                  label="Username"
+                  name="username"
+                  autoComplete="username"
                 />
               </Grid>
               <Grid item xs={12}>

@@ -9,6 +9,8 @@ const session = require('express-session');
 
 const app = express();
 
+app.use('/static', express.static(path.join(__dirname, '/auth-build/static')));
+
 roleClient.initMongoose()
 // mongoconnect.initMongoose();
 
@@ -18,19 +20,17 @@ app.use(session({
   saveUninitialized: false
 }))
 
-const indexRouter = require('./routes/index');
-const authRouter = require('./routes/auth');
-const usersRouter = require('./routes/users');
-
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+app.set('view engine', 'pug');
 
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-// app.use('/app/login', express.static(path.join(__dirname, '/auth-build')))
+const indexRouter = require('./routes/index');
+const authRouter = require('./routes/auth');
+const usersRouter = require('./routes/users');
 
 app.use('/app/auth', authRouter);
 app.use('/users', usersRouter);
